@@ -1,0 +1,70 @@
+<html>
+<head>
+<title>PRs</title>
+<style>
+#button { margin-left: 10px; }
+#users { display: none; }
+</style>
+<script src="jquery-3.2.1.min.js"></script>
+<script>
+var organization = "";
+var assignment = "";
+
+var users = null; // initialized when document is ready
+var linksPerGroup = 6;
+
+function buildURL(user) {
+  return "https://github.com/"+organization+"/"+assignment+"-"+user+"/pull/1/files";
+}
+
+function buildRow(group) {
+  var links = group.map(user => "<a href=\"" + buildURL(user) +"\">" + user + "</a>").join(" ");
+  var opens = group.map(user => "window.open('" + buildURL(user) + "','_blank');").join("");
+  return $( "<li> <button onclick=\"" + opens + "\">Open Group</button> " + links + "</li>" );
+}
+
+function createLinks(ev) {
+  organization = $("#organization").val();
+  assignment = $("#assignment").val();
+
+  // remove existing children of links
+  $("#links li").remove();
+
+  // generate links and add to the page
+  var ul = $("#links");
+  for (i = 0; i < users.length; i += linksPerGroup) {
+    ul.append( buildRow(users.slice(i,i+linksPerGroup)) );
+  }
+  ev.preventDefault();
+  return false;
+}
+
+$( document ).ready(function() {
+  $("#organization").val(organization);
+  $("#assignment").val(assignment);
+  
+  users = $("#users").text().trim().split(/\s+/);
+
+  $("#form").submit(createLinks);
+});
+</script>
+<base target="_blank">
+</head>
+<body>
+<h1>Links to Pull Requests</h1>
+
+<form id="form">
+<input type="text" id="organization" title="Name of GitHub organization"> /
+<input type="text" id="assignment" autofocus title="Name of assignment">
+<input type="submit" id="button" value="Create Links">
+</form>
+
+<ul id="links">
+<li> Fill in assignment name and type Enter
+</ul>
+
+<div id="users">
+
+</div>
+</body>
+</html>
